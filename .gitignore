@@ -14,6 +14,7 @@ runner
 .polyscope.ini
 .ipynb_checkpoints
 .idea
+*.whl
 
-my_piper/xtendlog
-piper
+my_piper/xtendlog/
+piper_orig
