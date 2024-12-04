@@ -1,4 +1,6 @@
 import os
+import wave
+import time
 from pathlib import Path
 from typing import Union
 
@@ -40,7 +42,25 @@ def build_file(model:str = 'en_US_lessac_high',
                runs=5,
                dump=False,
                **kwargs):
-    pass
+    with wave.open(output, "wb") as wav_file:
+        wav_file.setnchannels(1)
+        start = time.perf_counter()
+        voice.synthesize(prompt, wav_file, **synthesize_args)
+        end = time.perf_counter()
+        
+        inference_duration = end - start
+        
+        frames = wav_file.getnframes()
+        rate = wav_file.getframerate()
+        audio_duration = frames / float(rate)
+        
+        print(f"Piper TTS model:    {model}")
+        print(f"Output saved to:    {output}")
+        print(f"Inference duration: {inference_duration:.3f} sec")
+        print(f"Audio duration:     {audio_duration:.3f} sec")
+        print(f"Realtime factor:    {inference_duration/audio_duration:.3f}")
+        print(f"Inverse RTF (RTFX): {audio_duration/inference_duration:.3f}\n")
+        
     
     
 def voice_choice(model: str,cache=os.environ.get('PIPER_CACHE'),):
@@ -58,5 +78,10 @@ def voice_choice(model: str,cache=os.environ.get('PIPER_CACHE'),):
     
     voices_info.update(aliases_info)
     if not os.path.isfile(os.path.join(cache, model)):
+        model_name = model
         ensure_voice_exists(model, cache, cache, voices_info)
         model, config = find_voice(model, [cache])
+    else:
+        model_name = os.path.splitext(os.path.basename(model))[0]
+        
+    
