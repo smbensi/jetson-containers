@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, Iterable, Union
+from typing import Any, Dict, Iterable, Set, Union
 from pathlib import Path
 import logging
 import shutil
@@ -28,7 +28,8 @@ def get_voices(
         with urlopen(voices_url) as response, open(
             voices_download, "wb"
         ) as download_file:
-            shutil.copyfileobj(response, download_file)
+            shutil.copyfileobj(response, download_file) 
+            # function to copy the content of a file object to another file object
             
     # Perfer downloded files to embedded
     voices_embedded = _DIR / "voices.json"
@@ -45,4 +46,15 @@ def ensure_voice_exist(
     download_dir: Union[str, Path],
     voices_info: Dict[str, Any]
 ):
+    assert data_dirs, "No data dirs"
+    if name not in voices_info:
+        raise VoiceNotFoundError
+    
+    voice_info = voices_info[name]
+    voice_files = voice_info["files"]
+    files_to_download: Set[str] = set()
+    
+    for data_dir in data_dirs:
+        
+    
     
